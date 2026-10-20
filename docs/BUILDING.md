@@ -2,7 +2,7 @@
 
 **[README](../README.md)** > **Building** · [Report an issue](../../../issues/new)
 
-Firmware is currently distributed as source only, so a build is the first step of an [install](INSTALL.md). Both artifacts are written to the repository root, stamped with the base config's project version.
+Every release ships these artifacts prebuilt; a build is for changing the configs, tracking `main`, or not trusting someone else's binaries. It produces the same files an [install](INSTALL.md) downloads, written to the repository root and stamped with the base config's project version.
 
 ## Contents
 
@@ -45,7 +45,7 @@ Builds are verified with ESPHome 2026.7.2 and 2026.8.2.
 
 ## Strapping pin warnings
 
-Builds print strapping pin warnings for whichever strapping pins that model wires to a relay, button, or LED — GPIO4, GPIO5, and GPIO15 on the 1 Gen4, GPIO4 on the 1PM, GPIO4 and GPIO5 on the 1PM Mini and the 2PM, plus a USB-Serial-JTAG note for the 1PM Mini's switch input and the 2PM's button, both on GPIO12. They are benign; Shelly's hardware dictates those pins.
+Builds print strapping pin warnings for whichever strapping pins that model wires to a relay, button, or LED — GPIO4, GPIO5, and GPIO15 on the 1 Gen4, GPIO4 on the 1PM, GPIO4 and GPIO5 on the 1 Mini, the 1PM Mini, the 2PM, and the EM Mini, GPIO4 on the Plug US, plus a USB-Serial-JTAG note for the 1 Mini's and 1PM Mini's switch input and the 2PM's button, all on GPIO12. They are expected; Shelly's hardware dictates those pins.
 
 ## Related documentation
 

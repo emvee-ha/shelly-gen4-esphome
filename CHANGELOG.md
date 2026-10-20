@@ -9,6 +9,180 @@ a rebuild that only bumps the version string is easy to tell apart from a real c
 
 ---
 
+## 1.5.2
+
+**Ids on the switch inputs, the onboard button, and two base entities, so a stub can `!extend`
+or `!remove` them.** Affects all seven models. Nothing changes on the device.
+
+- `Switch Input` is now `switch_input` on the 1, 1 Mini, 1PM, and 1PM Mini, and
+  `switch_input_1` / `switch_input_2` on the 2PM. `Button` is `onboard_button` on every model.
+- In the base, `Restart` is `btn_restart`, and the block holding both free memory sensors is
+  `sensor_debug`. The full list is in
+  [Customizing](docs/CUSTOMIZING.md#package-merging-and-stable-ids).
+- Entity names are unchanged, so nothing is renamed in Home Assistant.
+- A stub that already declares one of these ids for its own entity stops building with
+  `ID ... redefined`; rename the id in the stub.
+- Adopted devices pick this up on their next rebuild.
+- Requested by [@Gionames](https://github.com/Gionames) in [#28](../../issues/28).
+- All seven models build on ESPHome 2026.8.2. Verified on the 1, 1PM Mini, 2PM (both inputs),
+  EM Mini, and Plug US: the switch inputs and the button behave as before. A stub extending
+  `switch_input` with an `on_release` builds against the 1PM Mini.
+
+---
+
+## 1.5.1
+
+**Fixes a build failure coming with ESPHome 2026.10.0.** Affects the six relay models: the 1,
+1PM, 1 Mini, 1PM Mini, 2PM, and Plug US. The EM Mini is unchanged apart from the version string.
+
+- The overheat check read the temperature through `raw_state`, which ESPHome deprecated and
+  removes in 2026.10.0. On 2026.9 it compiled with a warning; on 2026.10.0 it would not compile.
+- It now reads the same value with `get_raw_state()`. Behavior is unchanged.
+- Adopted devices pick this up on their next rebuild.
+- Reported by [@Gionames](https://github.com/Gionames) in [#29](../../issues/29).
+- All seven models build on ESPHome 2026.8.2 and on 2026.10.0b2. Verified on the 1 and
+  the 2PM (both channels), which cover the die sensor and the NTC: each relay turns on and
+  stays on with no Overheating fault at normal temperature.
+
+---
+
+## 1.5.0
+
+**Overpower, overcurrent, overvoltage, and overheating protection.** Affects the six relay
+models: the 1, 1PM, 1 Mini, 1PM Mini, 2PM, and Plug US. The EM Mini is unchanged apart from
+the version string.
+
+- The relay turns off when a reading goes over its limit, and a problem binary sensor shows
+  which: `Overpower`, `Overcurrent`, `Overvoltage`, or `Overheating`. The fault stays on until
+  the relay is turned back on.
+- New `Max Power`, `Max Current`, and `Max Voltage` number entities on the 1PM, 1PM Mini, 2PM,
+  and Plug US. Each defaults to the device's rating, which is also its ceiling; set power
+  and current to the load on the circuit. On the 2PM, power and current are per channel.
+- Overheating trips at 95 °C, Shelly's documented limit, on every relay model. It reads the
+  NTC where there is one and the ESP32-C6 die temperature on the 1 and Plug US.
+- Limits per model and the substitutions are in
+  [Customizing](docs/CUSTOMIZING.md#protections). The base's Internal Temperature sensor now
+  has the id `sensor_internal_temperature`.
+- Adopted devices pick this up on their next rebuild.
+- Requested by [@stargazer992](https://github.com/stargazer992) in [#23](../../issues/23).
+- Verified on all six. Overheating trips and blocks turn-on on every model. On the Plug US,
+  Overpower, Overcurrent, and Overvoltage tripped on a 140 W load test. Overvoltage also tripped on
+  the 1PM, 1PM Mini, and 2PM, and the 2PM's channels tripped independently. The Plug's stock
+  defaults, read from two units, are its 1800 W / 15 A / 150 V.
+
+---
+
+## 1.4.2
+
+**Fixes Momentary pulses being cut short.** Affects the six relay models: the 1, 1PM, 1 Mini,
+1PM Mini, 2PM, and Plug US. The EM Mini is unchanged apart from the version string.
+
+- In Momentary mode, turning the relay back on before its pulse ended let the earlier pulse's
+  timer turn it off early, so the new pulse was cut short. A garage door opener can miss a
+  pulse that short.
+- Every pulse now runs its full length, and turning the relay off mid-pulse cancels the
+  pending turn-off. On the 2PM each channel keeps its own timer.
+- Adopted devices pick this up on their next rebuild.
+- Reported by [@stargazer992](https://github.com/stargazer992) in [#23](../../issues/23).
+- Verified on the 2PM (both channels), 1 Mini, 1PM, and Plug US. On the 1 Mini and 1PM the
+  cut-short pulse was reproduced on 1.4.1 first. The 1 and 1PM Mini use the same relay code.
+
+---
+
+## 1.4.1
+
+**Fixes the fallback hotspot on 1.4.0.** Affects all seven models; update from 1.4.0.
+
+- On 1.4.0 the Bluetooth scan ran continuously from boot and starved the fallback hotspot.
+  Joining it failed as if the password were wrong, so a fresh conversion could not be set up,
+  and a device that lost Wi-Fi could not be reached through its hotspot.
+- The scan now runs only while Wi-Fi is connected. It starts when Wi-Fi connects, stops when
+  it drops, and the hotspot has the radio to itself. The `Bluetooth Proxy` switch works as
+  before.
+- A 1.4.0 device stuck on its hotspot recovers once the Wi-Fi it knows is back in range; update
+  it to 1.4.1 from there.
+- Dropping the proxy from a build now also removes two Wi-Fi triggers; see
+  [Customizing](docs/CUSTOMIZING.md#package-merging-and-stable-ids).
+- Verified on the Plug US: a fresh web UI conversion joins the hotspot first try, a device that
+  lost Wi-Fi opens its hotspot and captive portal, and the proxy resumes when Wi-Fi returns.
+
+---
+
+## 1.4.0
+
+**Bluetooth proxy on every model.** The ESP32-C6's Bluetooth radio, unused until now, relays
+nearby Bluetooth devices to Home Assistant. Affects all seven models.
+
+- Home Assistant discovers each device as a Bluetooth adapter and routes every Bluetooth
+  device through whichever adapter hears it best. Active mode, so Home Assistant can also
+  connect through the proxy to devices that need a connection, like locks.
+- New `Bluetooth Proxy` switch, on by default and restored after a restart. Off stops the
+  scan and shuts the Bluetooth stack down at runtime, returning about 55 KB of memory, with
+  no rebuild. To drop the proxy from a build entirely, see
+  [Customizing](docs/CUSTOMIZING.md#package-merging-and-stable-ids).
+- New `Free Memory` and `Largest Free Memory Block` diagnostic sensors on every model.
+- The proxy adds about 600 KB to the app image, which still uses under 55% of the app slot.
+- Adopted devices pick this up on their next rebuild.
+- New stable ids: `ble_tracker` and `bluetooth_proxy_switch`. Existing ids, substitution
+  names, and package URLs are unchanged.
+- Verified on all seven models: the device shows as a Bluetooth adapter, the switch stops and
+  restarts advertisements in real time, and metering, the RTC, and the relays are unaffected.
+
+---
+
+## 1.3.0
+
+**Shelly EM Mini Gen4 — new, working on hardware.**
+
+- Added [`configs/shelly-em-mini-gen4.yaml`](configs/shelly-em-mini-gen4.yaml): button, status
+  LED, BL0942 power meter on the included CT clamp, the NTC, and the battery-backed RTC. The
+  web UI zip carries the stock app code `MiniEMG4`.
+- Found every pin on the device: button GPIO22, status LED GPIO5, BL0942 TX GPIO20 / RX GPIO19,
+  NTC GPIO4, the 1PM Mini's map without the relay and switch input, plus the RTC on I2C at
+  GPIO10/GPIO11. See the [GPIO Map](docs/GPIO.md#shelly-em-mini-gen4).
+- The meter is calibrated against a reference meter (`voltage_reference` 14491.65075,
+  `current_reference` 251625.18057).
+- The EM Mini's stock flash layout has smaller app and fs slots than the rest of the line, so
+  the shared partition table is rejected by its installer. `shelly_gen4_partition` takes a
+  `layout:` option, `standard` by default and `em_mini` for this model, and the zip carries the
+  matching 768 KB fs part. See [The Partition System](docs/PARTITIONS.md#the-em-mini-layout).
+- The RTC (PCF8563-compatible, 0x51) is read at boot. The clock is valid before Wi-Fi
+  connects, and Home Assistant's time is written back to it on every sync. `RTC Time` shows
+  what the chip holds, or `not set` after it lost power.
+- Stock firmware holds the LED pad, so the config releases GPIO5 at boot.
+- `build.py` builds the checkout's own partition component rather than the copy on `main`.
+- Other models are unchanged apart from the version string.
+
+---
+
+## 1.2.0
+
+**Shelly Plug US Gen4 — new, working on hardware.**
+
+- Added [`configs/shelly-plug-us-gen4.yaml`](configs/shelly-plug-us-gen4.yaml): relay, button,
+  BL0942 power meter, the 12-pixel RGB LED ring, and the LTR-329 light sensor. The web UI zip
+  carries the stock app code `PlugUSG4`.
+- Found every pin on the device, since no public map exists: relay GPIO4, button GPIO7, LED
+  ring GPIO6, BL0942 TX GPIO18 / RX GPIO19, light sensor on I2C at GPIO10/GPIO11. See the
+  [GPIO Map](docs/GPIO.md#shelly-plug-us-gen4).
+- The meter is calibrated against a reference meter (`voltage_reference` 25169.82830,
+  `current_reference` 248840.32040). The BL0942's RX line needs a pull-up on this board.
+- `Relay Linking`, `Relay Mode`, and `Pulse Length` as on the relays. Linking applies to the
+  button, the Plug's only input: `Unlinked` reports presses without toggling the relay.
+- `LED Ring` is a Home Assistant light with color and brightness, and restores its last state
+  after a restart. `Ring Mode` matches stock's LED modes: `Power` (default) colors it green to
+  red by load up to `ring_max_power`, `Relay State` shows green on and red off, and `Manual`
+  leaves it to Home Assistant.
+- The ring blinks blue while Wi-Fi or the API is down, at the same rhythm as the status LED on
+  the other models, then returns to what it was showing.
+- `Illuminance` in lux, calibrated against a light meter (`illuminance_scale` 2.9), and
+  `Illumination` as `dark`, `twilight`, or `bright` like stock, with `dark_threshold` (5 lx) and
+  `bright_threshold` (100 lx) substitutions.
+- Stock firmware holds the relay pad, so the config releases GPIO4 at boot, as on the Minis.
+- Other models are unchanged apart from the version string.
+
+---
+
 ## 1.1.0
 
 **Detached mode.** The switch input can be unlinked from the relay. The terminal

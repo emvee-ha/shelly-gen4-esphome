@@ -4,7 +4,7 @@
 
 Two ways in. The stock web UI takes one zip over your existing network and needs no adapter, and UART writes the same image with the device open. Both paths write the same layout; only the delivery differs.
 
-Firmware is currently distributed as source only, so [build](BUILDING.md) the artifacts first. A build produces `automatous-io-<model>-esphome-vX.Y.Z-ota.zip` for the stock web UI and `-uart.bin` for esptool over UART.
+Download both artifacts from the [latest release](../../../releases/latest): `automatous-io-<model>-esphome-vX.Y.Z-ota.zip` for the stock web UI, `-uart.bin` for esptool over UART. Check your download against the release's `SHA256SUMS`. [Building](BUILDING.md) produces the same two files if you would rather compile them.
 
 ## Contents
 
@@ -15,7 +15,7 @@ Firmware is currently distributed as source only, so [build](BUILDING.md) the ar
 
 ## Stock web UI
 
-Open the Shelly's stock web page, choose to install firmware from a file, and upload the zip. The stock installer verifies it, writes it, and reboots into ESPHome. Conversion is tested from stock firmware 1.7.5 and 2.0.0.
+Open the Shelly's stock web page, choose to install firmware from a file, and upload the zip. The stock installer verifies it, writes it, and reboots into ESPHome. Conversion is tested from stock firmware 1.7.5, 2.0.0, and 2.0.1.
 
 Then go to [First Boot and Adoption](ADOPTION.md).
 

@@ -14,13 +14,30 @@ What happens after the conversion reboots: joining Wi-Fi, what shows in Home Ass
 
 ## First boot
 
-The conversion ships blank settings. The device opens a hotspot (`<model>-<suffix>`, so `shelly-1-gen4-52ab8c`, `shelly-1pm-gen4-52ab8c`, `shelly-1-mini-gen4-52ab8c`, `shelly-1pm-mini-gen4-52ab8c`, or `shelly-2pm-gen4-52ab8c`, password `automatous`) with a captive portal at 192.168.4.1 to take your Wi-Fi credentials.
+The conversion ships blank settings. The device opens a hotspot (`<model>-<suffix>`, so `shelly-1-gen4-52ab8c`, `shelly-1pm-gen4-52ab8c`, `shelly-1-mini-gen4-52ab8c`, `shelly-1pm-mini-gen4-52ab8c`, `shelly-2pm-gen4-52ab8c`, `shelly-plug-us-gen4-52ab8c`, or `shelly-em-mini-gen4-52ab8c`, password `automatous`) with a captive portal at 192.168.4.1 to take your Wi-Fi credentials.
 
 Once connected, its web page is at `http://<model>-<suffix>.local` and Home Assistant discovers it through the native API.
 
 ## In Home Assistant
 
-A Shelly 1 Gen4's device page after conversion:
+A Shelly Plug US Gen4's device page after conversion. These are the newest shots. They show everything a relay model has today: `Relay Linking`, the `Bluetooth Proxy` switch and memory sensors from 1.4.0, and the protections from 1.5.0, with `Max Power`, `Max Current`, and `Max Voltage` under Configuration and `Overpower`, `Overcurrent`, `Overvoltage`, and `Overheating` as problem sensors. Shown here with a 141W resistive load and `Max Power` set to 130W, as Overpower trips:
+
+<p>
+  <img src="images/ha-esphome-shelly-plug-us-gen4-overpower-1.png" alt="Shelly Plug US Gen4 in Home Assistant: device info and controls, with the LED Ring lit green, the relay on, and the pulse length, relay linking, relay mode, and ring mode selects" width="700">
+</p>
+<p>
+  <img src="images/ha-esphome-shelly-plug-us-gen4-overpower-2.png" alt="Shelly Plug US Gen4 in Home Assistant: button, illuminance, illumination, and the meter reading 1.19A and 141.0W, with Overpower reporting a problem and Overcurrent, Overheating, and Overvoltage OK" width="300">
+  <img src="images/ha-esphome-shelly-plug-us-gen4-overpower-3.png" alt="Shelly Plug US Gen4 in Home Assistant: the Bluetooth Proxy switch, Max Current 15A, Max Power 130W, Max Voltage 150V, and the restart and factory reset buttons" width="369">
+</p>
+<p>
+  <img src="images/ha-esphome-shelly-plug-us-gen4-3.png" alt="Shelly Plug US Gen4 in Home Assistant: diagnostic entities, free memory, largest free memory block, frequency, internal temperature, and voltage" width="329">
+</p>
+
+Particular to the Plug US are the `LED Ring` light, a `Ring Mode` select (`Power`, `Relay State`, or `Manual`), `Illuminance` in lux, and `Illumination` as dark, twilight, or bright, with the button as the linked input. The ring blinks blue while Wi-Fi or Home Assistant is disconnected.
+
+The shots of the other models are older and predate some of those entities.
+
+The Shelly 1 Gen4 has the relay, its selects, and the two inputs. Of the protections, it and the 1 Mini have `Overheating` only:
 
 <p>
   <img src="images/ha-esphome-shelly-1-gen4-1.png" alt="Shelly 1 Gen4 in Home Assistant: controls and sensors" width="440">
@@ -34,19 +51,30 @@ The 1PM adds live metering. Current, power, and energy sit with the controls, an
   <img src="images/ha-esphome-shelly-1pm-gen4-2.png" alt="Shelly 1PM Gen4 in Home Assistant: configuration and diagnostic entities including voltage and frequency" width="253">
 </p>
 
-The 2PM doubles the controls, with linking, mode, and pulse length selects per relay, and meters each output separately. Shown here with a 143W resistive load on O2:
+The 2PM doubles the controls, with linking, mode, and pulse length selects per relay, and meters each output separately. Its faults are per channel, `Overpower 1` and `2` and `Overcurrent 1` and `2`, with `Overvoltage` and `Overheating` shared. Shown here with relay 1 on and no load connected:
 
 <p>
-  <img src="images/ha-esphome-shelly-2pm-gen4-1.png" alt="Shelly 2PM Gen4 in Home Assistant: device info and the two relays with their linking, mode, and pulse length selects" width="700">
+  <img src="images/ha-esphome-shelly-2pm-gen4-1.png" alt="Shelly 2PM Gen4 in Home Assistant: device info and the two relays, relay 1 on, each with its linking, mode, and pulse length selects" width="700">
 </p>
 <p>
-  <img src="images/ha-esphome-shelly-2pm-gen4-2.png" alt="Shelly 2PM Gen4 in Home Assistant: per-channel current, energy, and power sensors with channel 2 under load, plus the button and switch inputs" width="330">
-  <img src="images/ha-esphome-shelly-2pm-gen4-3.png" alt="Shelly 2PM Gen4 in Home Assistant: configuration and diagnostic entities including frequency, both temperatures, and voltage" width="326">
+  <img src="images/ha-esphome-shelly-2pm-gen4-2.png" alt="Shelly 2PM Gen4 in Home Assistant: per-channel current, energy, and power sensors with no load, Overcurrent 1 and 2, Overpower 1 and 2, Overheating, and Overvoltage all OK, plus the button and switch inputs" width="300">
+</p>
+<p>
+  <img src="images/ha-esphome-shelly-2pm-gen4-3.png" alt="Shelly 2PM Gen4 in Home Assistant: the Bluetooth Proxy switch, Max Current 10A, Max Power 2400W, Max Voltage 280V, and the restart and factory reset buttons" width="273">
+  <img src="images/ha-esphome-shelly-2pm-gen4-4.png" alt="Shelly 2PM Gen4 in Home Assistant: diagnostic entities, free memory, largest free memory block, frequency, both temperatures, and voltage" width="318">
+</p>
+
+The EM Mini has the 1PM's metering entities and a `Button` sensor, with no relay, selects, or protections. `RTC Time` is diagnostic and shows what the battery-backed clock holds, or `not set` if it lost power. Shown here with a 141W resistive load through the CT clamp, and with the `Bluetooth Proxy` switch and memory sensors every model has from 1.4.0:
+
+<p>
+  <img src="images/ha-esphome-shelly-em-mini-gen4-1.png" alt="Shelly EM Mini Gen4 in Home Assistant: device info" width="260">
+  <img src="images/ha-esphome-shelly-em-mini-gen4-2.png" alt="Shelly EM Mini Gen4 in Home Assistant: button, current, energy, and power sensors under a 141W load, plus the restart and factory reset buttons" width="260">
+  <img src="images/ha-esphome-shelly-em-mini-gen4-3.png" alt="Shelly EM Mini Gen4 in Home Assistant: the Bluetooth Proxy switch under configuration, and diagnostic entities including free memory, largest free memory block, frequency, both temperatures, RTC time, and voltage" width="260">
 </p>
 
 ## Adoption and the stub
 
-The device also broadcasts a `dashboard_import` URL, and ESPHome Builder offers to adopt it. Adoption creates a minimal stub in your config directory, roughly (a 1PM, 1 Mini, 1PM Mini, or 2PM stub is identical with `shelly-1pm-gen4`, `shelly-1-mini-gen4`, `shelly-1pm-mini-gen4`, or `shelly-2pm-gen4` throughout):
+The device also broadcasts a `dashboard_import` URL, and ESPHome Builder offers to adopt it. Adoption creates a minimal stub in your config directory, roughly (a 1PM, 1 Mini, 1PM Mini, 2PM, Plug US, or EM Mini stub is identical with `shelly-1pm-gen4`, `shelly-1-mini-gen4`, `shelly-1pm-mini-gen4`, `shelly-2pm-gen4`, `shelly-plug-us-gen4`, or `shelly-em-mini-gen4` throughout):
 
 ```yaml
 substitutions:
